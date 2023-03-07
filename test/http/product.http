@@ -1,0 +1,17 @@
+@api_url={{baseurl}}:{{port}}
+@jwt=
+
+### get all product
+GET {{api_url}}/products
+### get all product by id
+GET {{api_url}}/products/62ce1f79bac467610201016c
+### Add product
+POST {{api_url}}/products
+Content-Type: application/json
+
+{
+    "name": "sp loai 1",
+    "code": "owiejf1",
+    "price": 1000,
+    "category": "62ce22635a05ddbe1e0c9383"
+}

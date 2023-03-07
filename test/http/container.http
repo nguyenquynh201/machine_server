@@ -1,0 +1,15 @@
+@api_url={{baseurl}}:{{port}}
+@jwt=
+
+### Get all containers
+GET {{api_url}}/containers
+
+### Add container
+POST {{api_url}}/containers
+Content-Type: application/json
+
+{
+    "code": "sd234",
+    "containerNumber": "123456",
+    "note": "note"
+}

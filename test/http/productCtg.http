@@ -1,0 +1,13 @@
+@api_url={{baseurl}}:{{port}}
+@jwt=
+
+### Get all category
+GET {{api_url}}/product-ctgs
+### Add category
+POST {{api_url}}/product-ctgs
+Content-Type: application/json
+
+{
+    "name": "loai 1",
+    "note": "test thoi"
+}

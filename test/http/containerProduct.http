@@ -1,0 +1,14 @@
+@api_url={{baseurl}}:{{port}}
+@jwt=
+
+### Get all
+GET {{api_url}}/container-products/62ce31ec1fc87d246c68e4dd
+
+### Add
+POST {{api_url}}/container-products
+Content-Type: application/json
+
+{
+    "container": "62ce260f3a774917d9d6c2b5",
+    "product": "62ce22755a05ddbe1e0c9386"
+}
