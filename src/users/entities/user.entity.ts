@@ -1,7 +1,7 @@
-import mongoose from 'mongoose';
 import { UserRole } from "../interface/userRoles";
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { Gender } from "../interface/gender";
 
 
 @Schema({
@@ -12,30 +12,44 @@ export class User {
 
     @Prop({ required: true, lowercase: true })
     username: string;
-    
+
     @Prop({ select: false })
     password: string;
 
-    @Prop({ default: UserRole.View })
+    @Prop({ default: UserRole.User })
     role?: UserRole;
 
-    @Prop({ lowercase: true })
+    @Prop({ default: Gender.Other })
+    gender?: Gender;
+
+    @Prop({ lowercase: true, required: true, unique: true })
     email: string;
 
-    @Prop() 
+    @Prop()
     lastLogin: Date;
 
-    @Prop() 
+    @Prop()
     fullName: string;
 
-    @Prop() 
-    address: string;
-  
-    @Prop() 
-    phone?: string;
+    @Prop()
+    addressProvince?: string;
+
+    @Prop()
+    addressDistrict?: string;
+
+    @Prop()
+    address?: string;
+
+    @Prop({ required: true })
+    phone: string;
 
     @Prop()
     createdBy?: string;
+     
+    @Prop()
+    firebaseToken?: string;
+
+
 
 }
 

@@ -16,16 +16,19 @@ import { Roles } from 'src/decors/roles.decorator';
 import { UserRole } from './interface/userRoles';
 import { ChangeRoleDto } from './dto/change-role.dto';
 import { Query } from '@nestjs/common';
+import { OnesignalService } from 'src/onesignal/onesignal.service';
 
 @Controller('users')
 @BearerJwt()
 @ApiTags('User')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService, private readonly onsignal: OnesignalService,) { }
 
   @Post()
+  @Roles(UserRole.Admin)
   async create(@Body() createUserDto: CreateUserDto, @AuthUser() authUser: JwtUser) {
     const res = await this.usersService.create(createUserDto, authUser);
+
     return new OkRespone({ data: { _id: res._id } });
   }
 
@@ -53,11 +56,13 @@ export class UsersController {
   @Get('me')
   async getMe(@AuthUser() user: JwtUser) {
     const userId = user['userId'];
+
     return this.usersService.findOne(userId, { throwIfFail: true, lean: true });
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
+    this.onsignal.sendNotification({ name: 'Hello world' }, [id]);
     return this.usersService.findOne(id, { throwIfFail: true, lean: true });
   }
 
@@ -68,6 +73,7 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.Admin)
   async remove(@Param('id') id: string, @AuthUser() userReq: JwtUser) {
     const result = await this.usersService.remove(id, userReq);
     return new OkRespone();
@@ -80,9 +86,9 @@ export class UsersController {
   }
 
   @Post('role')
-  @Roles(UserRole.Edit)
+  @Roles(UserRole.Admin)
   async changeRole(@Body() info: ChangeRoleDto, @AuthUser() authUser: JwtUser) {
     const result = await this.usersService.changeRole(info, authUser);
     return new OkRespone({ data: { _id: result._id, role: result.role } });
-  }  
+  }
 }

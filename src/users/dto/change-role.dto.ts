@@ -4,10 +4,9 @@ import { UserRole } from "../interface/userRoles";
 export class ChangeRoleDto {
     @IsMongoId()
     userId: string;
-
     /**
      * Default is `view`
-     * @example [view, edit]
+     * @example [user, staff]
      */
     @IsEnum(UserRole)
     role: UserRole;

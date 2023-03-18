@@ -3,14 +3,15 @@ import { ApiExcludeEndpoint, ApiTags } from '@nestjs/swagger';
 import { OkRespone } from 'src/commons/okResponse';
 import { AuthService } from './auth.service';
 import { UserRefreshToken } from './dto/refresh-token.dto';
-import { RegisterUserDto } from './dto/register.dto';
+import { OnesignalService } from 'src/onesignal/onesignal.service';
 import { UserLoginDto } from './dto/userLogin.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
     constructor(
-        private authService: AuthService
+        private authService: AuthService,
+        private onsignal: OnesignalService
     ) { }
 
     @Post('login')
@@ -24,16 +25,16 @@ export class AuthController {
         return this.authService.refreshToken(req);
     }
 
-    @Post('register')
-    async register(@Body() info: RegisterUserDto) {
-        const result = await this.authService.register(info);
-        return new OkRespone({
-            data: {
-                _id: result._id,
-                username: result.username,
-                role: result.role,
-            }
-        });
-    }
+    // @Post('register')
+    // async register(@Body() info: RegisterUserDto) {
+    //     const result = await this.authService.register(info);
+    //     return new OkRespone({
+    //         data: {
+    //             _id: result._id,
+    //             username: result.username,
+    //             role: result.role,
+    //         }
+    //     });
+    // }
 
 }

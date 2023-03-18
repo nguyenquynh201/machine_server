@@ -20,13 +20,13 @@ export class ProductCtgService {
     private model: Model<ProductCtgDocument>
   ) { }
   create(dto: CreateProductCtgDto, authUser: JwtUser) {
-    if(authUser.role != UserRole.Edit){
+    if (authUser.role != UserRole.Admin) {
       throw new ForbiddenException();
     }
     return this.model.create(dto);
   }
 
-  async findAll(authUser: JwtUser, query?:  QueryProductCtg ) {
+  async findAll(authUser: JwtUser, query?: QueryProductCtg) {
 
     let filter: FilterQuery<ProductCtgDocument> = {};
 
@@ -34,7 +34,7 @@ export class ProductCtgService {
       filter.$or = [
         { $text: { $search: `.*${query.search}.*`, $language: "en" } },
       ]
-  }
+    }
 
     const cmd = this.model.find({ ...filter })
       .lean({ autopopulate: true })
@@ -54,7 +54,7 @@ export class ProductCtgService {
   }
 
   update(id: string, dto: UpdateProductCtgDto, authUser: JwtUser) {
-    if(authUser.role != UserRole.Edit){
+    if (authUser.role != UserRole.Admin) {
       throw new ForbiddenException();
     }
     return this.model.findByIdAndUpdate(id, dto)
@@ -63,7 +63,7 @@ export class ProductCtgService {
   }
 
   remove(id: string, authUser: JwtUser) {
-    if(authUser.role != UserRole.Edit){
+    if (authUser.role != UserRole.Admin) {
       throw new ForbiddenException();
     }
     return this.model.findByIdAndDelete(id)

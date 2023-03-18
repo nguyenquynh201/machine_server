@@ -2,16 +2,21 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose from "mongoose";
 import { PRODUCT_CTG } from "src/commons/constants/schemaConst";
 import { CONTAINER } from "src/commons/constants/schemaConst";
-
+import { S3File, S3FileSchema } from 'src/storages/s3File.schema';
+import { Types } from 'mongoose';
 @Schema({
     timestamps: true
 })
 export class Product {
-    @Prop()
-    code: string;
 
-    @Prop()
+    @Prop({ required: true })
     name: string;
+
+    @Prop({ required: true })
+    brand: string;
+
+    @Prop([S3FileSchema])
+    imageMachine?: Types.Array<S3File>;
 
     @Prop({
         type: mongoose.Schema.Types.ObjectId,
@@ -26,7 +31,7 @@ export class Product {
     @Prop({ default: 0 })
     price: number;
 
-    @Prop({default: true}) 
+    @Prop({ default: true })
     show: boolean;
 
     @Prop([{
@@ -39,6 +44,6 @@ export class Product {
 export type ProductDocument = Product & mongoose.Document;
 export const ProductSchema = SchemaFactory.createForClass(Product);
 
-ProductSchema.index({ name: 'text'})
+ProductSchema.index({ name: 'text' })
     .index({ category: 1 })
     .index({ code: 1 })

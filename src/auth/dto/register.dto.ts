@@ -6,7 +6,7 @@ export class RegisterUserDto {
 
     @IsString()
     @IsMobilePhone('vi-VN')
-    phone?: string;
+    phone: string;
 
     @IsString()
     @IsEmail()
@@ -14,5 +14,9 @@ export class RegisterUserDto {
 
     @IsString()
     password: string;
+
+    @IsString()
+    @IsOptional()
+    address: string;
 
 }

@@ -4,11 +4,14 @@ import { AppController } from './app.controller';
 import { connectUrl, connectOptions } from './configs/mongo.cnf'
 import { ProductCtgModule } from './product-ctg/product-ctg.module';
 import { ProductsModule } from './products/products.module';
-import { ContainersModule } from './containers/containers.module';
+
 import { AuthModule } from './auth/auth.module';
 import { AllExceptionsFilter } from './commons/filters/exceptionFilter';
 import { UsersModule } from './users/users.module';
 import { APP_FILTER } from '@nestjs/core';
+import { OnesignalService } from './onesignal/onesignal.service';
+import { OnesignalController } from './onesignal/onesignal.controller';
+import { OnesignalModule } from './onesignal/onesignal.module';
 
 @Module({
   imports: [
@@ -17,14 +20,15 @@ import { APP_FILTER } from '@nestjs/core';
     UsersModule,
     ProductCtgModule,
     ProductsModule,
-    ContainersModule,
+    OnesignalModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, OnesignalController],
   providers: [
     {
       provide: APP_FILTER,
       useClass: AllExceptionsFilter,
     },
+    OnesignalService,
   ],
 })
 export class AppModule { }

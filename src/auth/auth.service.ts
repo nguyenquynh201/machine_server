@@ -5,17 +5,21 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { JwtConstants } from 'src/commons/constants/envConst';
 import { ErrCode } from 'src/commons/constants/errorConstants';
-import { UserDocument } from 'src/users/entities/user.entity';
+import { MailService } from 'src/mail/mail.service';
+import { User, UserDocument } from 'src/users/entities/user.entity';
 import { UserRole } from 'src/users/interface/userRoles';
 import { UsersService } from 'src/users/users.service';
 import { UserRefreshToken } from './dto/refresh-token.dto';
 import { RegisterUserDto } from './dto/register.dto';
-
+import { OnesignalService } from 'src/onesignal/onesignal.service';
 @Injectable()
 export class AuthService {
     constructor(
         private userService: UsersService,
         private jwtService: JwtService,
+        private mailService: MailService,
+        private onsignal: OnesignalService,
+
     ) { }
 
     async login(username: string, password: string) {
@@ -95,10 +99,40 @@ export class AuthService {
         if (phoneNumber) {
             throw new BadRequestException(ErrCode.E_USER_PHONE_EXISTED);
         }
-        const user = await this.userService.registerEdit({
-            ...dto,
-            role: UserRole.Edit
-        });
+        const user = await this.userService.registerEdit({ ...dto, role: UserRole.Staff });
+
+        // this.mailService.sendUserConfirmation(user, password)
+        // // this.mailService.sendUserForgotPassword(user, password)
+        //     .then((res) => {
+        //         console.log(`[email] send forgot passwd to ${user.email} done: ${JSON.stringify(res)}`)
+        //     })
+        //     .catch(error => {
+
+        //         console.log(`[email] send forgot passwd to ${user.email} error`, error.stack)
+        //     })
+
         return user;
     }
+    // async forgotPassword(email: string) {
+    //     const user = await this.userService.findByUsername(email, { password: false })
+    //     if (!user) {
+    //         throw new NotFoundException(ErrCode.E_USER_NOT_FOUND);
+    //     }
+    //     const token = Math.floor(10000 + Math.random() * 90000).toString();
+    //     await this.confirmCodeService.create({
+    //         userId: user._id,
+    //         token,
+    //         scope: ConfirmCodeScope.ForgotPass
+    //     }, user.email);
+    //     this.mailService.sendUserForgotPassword(user, token)
+    //         .then((res) => {
+    //            console.log(`[email] send forgot passwd to ${user.email} done: ${JSON.stringify(res)}`)
+    //         })
+    //         .catch(error => {
+
+    //             console.log(`[email] send forgot passwd to ${user.email} error`, error.stack)
+    //         })
+    //     return user;
+    // }
+
 }

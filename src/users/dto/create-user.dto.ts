@@ -16,18 +16,17 @@ export class CreateUserDto {
     password: string;
 
     @IsMobilePhone('vi-VN')
-    phone?: string;
-    
+    phone: string;
+
     @IsString()
     @IsOptional()
-    address?: string;
+    address: string;
 
     /**
      * Default is `view`
-     * @example [view, edit]
+     * @example [user, staff]
      */
     @IsEnum(UserRole)
-    @IsOptional()
-    role?: UserRole;
+    role: UserRole;
 
 }

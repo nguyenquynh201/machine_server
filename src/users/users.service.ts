@@ -13,17 +13,18 @@ import { ChangeRoleDto } from './dto/change-role.dto';
 import { QueryUser } from './dto/query-user.dto';
 import { Paginate } from 'src/commons/dto/paginate.dto';
 import { filterParams } from 'src/commons/utils/filterParams';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
-
+    private mailService: MailService,
   ) { }
 
   async create(createUserDto: CreateUserDto, userReq?: JwtUser) {
 
-    if(userReq.role != UserRole.Edit){
+    if (userReq.role != UserRole.Admin) {
       throw new ForbiddenException();
     }
 
@@ -40,10 +41,20 @@ export class UsersService {
     user.username = createUserDto.email;
     user.password = hashPassword;
     user.createdBy = userReq == null ? "" : userReq.username;
+    if (user.role == UserRole.User) {
+      this.mailService.sendInfoStaff(user, createUserDto.password)
+        .then((res) => {
+          console.log(`[email] sendInfoStaff to ${user.email} done: ${JSON.stringify(res)}`)
+        })
+        .catch(error => {
+          console.log(`[email] sendInfoStaff to ${user.email} error`, error.stack)
+        })
+    }
+
     return user.save();
   }
 
-  async registerEdit (createUserDto: CreateUserDto) {
+  async registerEdit(createUserDto: CreateUserDto) {
     const user = new this.userModel(createUserDto);
     const hashPassword = await bcrypt.hash(user.password, 10);
     user.username = createUserDto.email;
@@ -82,7 +93,7 @@ export class UsersService {
     }
     if (options?.throwIfFail)
       cmd.orFail(new NotFoundException(ErrCode.E_USER_NOT_FOUND))
-
+    
     return cmd.exec()
   }
 
@@ -95,9 +106,9 @@ export class UsersService {
   }
 
   async isPhoneNumberExist(phone: string) {
-    let user = await this.userModel.findOne({phone: phone}).exec();
+    let user = await this.userModel.findOne({ phone: phone }).exec();
     if (user) {
-      return true; 
+      return true;
     }
     return false;
   }
@@ -112,8 +123,8 @@ export class UsersService {
 
   async update(id: string, updateUserDto: UpdateUserDto, userReq?: JwtUser) {
 
-    if(id != userReq.userId ){
-      if(userReq.role != UserRole.Edit){
+    if (id != userReq.userId) {
+      if (userReq.role != UserRole.Admin) {
         throw new ForbiddenException();
       }
     }
@@ -121,7 +132,7 @@ export class UsersService {
     const userC = await this.userModel.findById(id)
       .orFail(new NotFoundException(ErrCode.E_USER_NOT_FOUND))
       .exec();
-    if(updateUserDto.phone && updateUserDto.phone != userC.phone) {
+    if (updateUserDto.phone && updateUserDto.phone != userC.phone) {
       const phoneNumber = await this.isPhoneNumberExist(updateUserDto.phone);
       if (phoneNumber) {
         throw new BadRequestException(ErrCode.E_USER_PHONE_EXISTED);
@@ -133,10 +144,6 @@ export class UsersService {
   }
 
   async remove(id: string, userReq: JwtUser) {
-
-    if(userReq.role != UserRole.Edit){
-      throw new ForbiddenException();
-    }
     const doc = await this.userModel.findByIdAndDelete(id)
       .orFail(new NotFoundException(ErrCode.E_USER_NOT_FOUND))
       .exec();
@@ -171,25 +178,7 @@ export class UsersService {
     const user = await this.userModel.findById(info.userId)
       .orFail(new NotFoundException(ErrCode.E_USER_NOT_FOUND))
       .exec();
-
-    if (this.compareRole(authUser.role, info.role) < 0) {
-      throw new ForbiddenException(ErrCode.E_NEED_HIGHER_ROLE);
-    }
-
     user.role = info.role;
     return user.save();
-  }
-
-  private roleLevel = {
-    'edit': 0,
-    'view': -1
-  }
-
-  /** 
-   * Return 1 if A > B, 0 if A == B, Otherwise return -1
-   */
-  private compareRole(roleA: UserRole, roleB: UserRole) {
-    const val = this.roleLevel[roleA] - this.roleLevel[roleB];
-    return val > 0 ? 1 : (val < 0 ? -1 : 0);
   }
 }

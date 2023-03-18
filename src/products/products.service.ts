@@ -20,7 +20,7 @@ export class ProductsService {
     @InjectModel(PRODUCT) private model: Model<ProductDocument>,
   ) { }
   create(dto: CreateProductDto, authUser: JwtUser) {
-    if(authUser.role != UserRole.Edit){
+    if(authUser.role != UserRole.Admin){
       throw new ForbiddenException();
     }
     return this.model.create(dto);
@@ -76,7 +76,7 @@ export class ProductsService {
   }
 
   update(id: string, dto: UpdateProductDto, authUser: JwtUser) {
-    if(authUser.role != UserRole.Edit){
+    if(authUser.role != UserRole.Admin){
       throw new ForbiddenException();
     }
     return this.model.findByIdAndUpdate(id, dto, { new: true })
@@ -85,7 +85,7 @@ export class ProductsService {
   }
 
   remove(id: string, authUser: JwtUser) {
-    if(authUser.role != UserRole.Edit){
+    if(authUser.role != UserRole.Admin){
       throw new ForbiddenException();
     }
     return this.model.findByIdAndDelete(id)
@@ -94,7 +94,7 @@ export class ProductsService {
   }
 
   async getNgang( file: Express.Multer.File, userReq: JwtUser, limit?: number, offset?: number) {   
-    if(userReq.role != UserRole.Edit){
+    if(userReq.role != UserRole.Admin){
       throw new ForbiddenException();
     }
 
@@ -118,7 +118,7 @@ export class ProductsService {
   }
 
   async getDoc( file: Express.Multer.File, userReq: JwtUser, limit?: number, offset?: number) {   
-    if(userReq.role != UserRole.Edit){
+    if(userReq.role != UserRole.Admin){
       throw new ForbiddenException();
     }
 
@@ -140,7 +140,7 @@ export class ProductsService {
   }
 
   async getNgangDoc( file: Express.Multer.File, userReq: JwtUser, limit?: number, offset?: number) {   
-    if(userReq.role != UserRole.Edit){
+    if(userReq.role != UserRole.Admin){
       throw new ForbiddenException();
     }
     const listCodeNgang = this.getCodeNgang(file);
@@ -254,7 +254,7 @@ export class ProductsService {
   }
 
   updateAllFalse(authUser: JwtUser) {
-    if(authUser.role != UserRole.Edit){
+    if(authUser.role != UserRole.Admin){
       throw new ForbiddenException();
     }
     return this.model.updateMany({show: true}, {$set: {show: false}})
@@ -263,7 +263,7 @@ export class ProductsService {
   }
 
   updateTrue(dto: UpdateProductTrueDto, authUser: JwtUser) {
-    if(authUser.role != UserRole.Edit){
+    if(authUser.role != UserRole.Admin){
       throw new ForbiddenException();
     }
     return this.model.updateMany({ _id: { $in: dto.listId }}, { $set: { show: true }})
@@ -272,7 +272,7 @@ export class ProductsService {
   }
 
   deleteProducts(dto: DeleteProductDto, authUser: JwtUser) {
-    if(authUser.role != UserRole.Edit){
+    if(authUser.role != UserRole.Admin){
       throw new ForbiddenException();
     }
     return this.model.deleteMany({ _id: { $in: dto.listId }})
