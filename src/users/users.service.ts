@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 import { BadRequestException, ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -14,6 +15,7 @@ import { QueryUser } from './dto/query-user.dto';
 import { Paginate } from 'src/commons/dto/paginate.dto';
 import { filterParams } from 'src/commons/utils/filterParams';
 import { MailService } from 'src/mail/mail.service';
+import { ProductsService } from 'src/products/products.service';
 
 @Injectable()
 export class UsersService {
@@ -32,13 +34,14 @@ export class UsersService {
     if (username) {
       throw new BadRequestException(ErrCode.E_USER_EXISTED);
     }
-    const phoneNumber = await this.isPhoneNumberExist(createUserDto.phone);
-    if (phoneNumber) {
-      throw new BadRequestException(ErrCode.E_USER_PHONE_EXISTED);
-    }
+    // const phoneNumber = await this.isPhoneNumberExist(createUserDto.phone);
+    // if (phoneNumber) {
+    //   throw new BadRequestException(ErrCode.E_USER_PHONE_EXISTED);
+    // }
+
     let user = new this.userModel(createUserDto);
     const hashPassword = await bcrypt.hash(user.password, 10);
-    user.username = createUserDto.email;
+    user.username = createUserDto.phone;
     user.password = hashPassword;
     user.createdBy = userReq == null ? "" : userReq.username;
     if (user.role == UserRole.User) {
@@ -57,14 +60,56 @@ export class UsersService {
   async registerEdit(createUserDto: CreateUserDto) {
     const user = new this.userModel(createUserDto);
     const hashPassword = await bcrypt.hash(user.password, 10);
-    user.username = createUserDto.email;
+    user.username = createUserDto.phone;
     user.password = hashPassword;
     return user.save();
   }
+  async updateDeviceTokens(token: string, authUser: JwtUser) {
+    const user = await this.userModel.findById(authUser.userId)
+      .orFail(new NotFoundException(ErrCode.E_USER_NOT_FOUND))
+      .exec();
 
+    user.deviceTokens.addToSet(token)
+
+    return user.save();
+  }
+
+  async removeDeviceToken(token: string, authUser: JwtUser) {
+    const user = await this.userModel.findByIdAndUpdate(authUser.userId,
+      {
+        $pullAll: { tokenFirebase: [token] }
+      })
+      .orFail(new NotFoundException(ErrCode.E_USER_NOT_FOUND))
+      .exec();
+
+    return user;
+  }
+
+  updateManyUserTokens(tokens: string[], authUser: JwtUser) {
+    if (tokens && tokens?.length > 0) {
+      for (let index = 0; index < tokens.length; index++) {
+        this.userModel.updateMany(
+          { tokenFirebase: { $in: [tokens[index]] } },
+          { $pullAll: { tokenFirebase: [tokens[index]] } }
+        )
+          .byTenant(authUser.owner)
+          .exec();
+      }
+    }
+    return true;
+  }
   async findAll(authUser: JwtUser, query: Paginate & QueryUser) {
+    if (authUser.role != UserRole.Admin) {
+      throw new ForbiddenException();
+    }
     const cond = filterParams(query, ['createdBy']);
     const cmd = this.userModel.find(cond)
+      .populate({
+        path: 'listProduct',
+        select: ''
+      }).populate({
+        path: 'listAddress',
+      })
     if (query.search) {
       cmd.find({ $text: { $search: query.search } });
     }
@@ -83,8 +128,14 @@ export class UsersService {
     return { total, data };
   }
 
-  findOne(id: string, options?: { throwIfFail?: boolean, password?: boolean, lean?: boolean }) {
+  async findOne(id: string, options?: { throwIfFail?: boolean, password?: boolean, lean?: boolean }) {
+    
     const cmd = this.userModel.findById(id)
+      .populate({
+        path: 'listProduct',
+      }).populate({
+        path: 'listAddress',
+      })
     if (options?.lean) {
       cmd.lean({ autopopulate: true })
     }
@@ -93,8 +144,15 @@ export class UsersService {
     }
     if (options?.throwIfFail)
       cmd.orFail(new NotFoundException(ErrCode.E_USER_NOT_FOUND))
-    
-    return cmd.exec()
+
+    try {
+      const data = await cmd.exec();
+      return data;
+    } catch (error) {
+      console.log(error);
+
+    }
+
   }
 
   async findByUsername(username: string, { password }: { password: boolean }) {
@@ -144,6 +202,9 @@ export class UsersService {
   }
 
   async remove(id: string, userReq: JwtUser) {
+    if (userReq.role != UserRole.Admin) {
+      throw new ForbiddenException();
+    }
     const doc = await this.userModel.findByIdAndDelete(id)
       .orFail(new NotFoundException(ErrCode.E_USER_NOT_FOUND))
       .exec();

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import { MongooseModuleOptions } from '@nestjs/mongoose';
 
 // const connectUrl = process.env.MONGODB_URL || 'mongodb://localhost:27017/machine_db';

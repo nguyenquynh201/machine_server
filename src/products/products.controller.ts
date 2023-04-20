@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, DefaultValuePipe, ParseIntPipe, UseInterceptors, UploadedFiles } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, DefaultValuePipe, ParseIntPipe, UseInterceptors, UploadedFiles, Res } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -12,9 +12,12 @@ import {
   ApiBody, ApiConsumes, ApiExcludeEndpoint, ApiParam, ApiQuery, ApiTags
 } from '@nestjs/swagger';
 import { FileUploadDto } from 'src/commons/dto/file-upload.dto';
-import { multerFileFilter } from 'src/configs/multer.cnf';
+import { multerFileFilter, multerStorage } from 'src/configs/multer.cnf';
 import { UpdateProductTrueDto } from './dto/update-product-true.dto';
 import { DeleteProductDto } from './dto/delete-product.dto';
+import { FileUploadImageDto, TypeImg } from 'src/commons/enums/typeimgs';
+import { AllowPublic } from 'src/decors/allow-public.decorator';
+import { Response } from 'express';
 @ApiTags('Products')
 @BearerJwt()
 @Controller('products')
@@ -23,6 +26,10 @@ export class ProductsController {
 
   @Post()
   create(@Body() dto: CreateProductDto, @AuthUser() authUser: JwtUser) {
+    return this.productsService.create(dto, authUser);
+  }
+  @Post()
+  createProductUser(@Body() dto: CreateProductDto, @AuthUser() authUser: JwtUser) {
     return this.productsService.create(dto, authUser);
   }
 
@@ -161,5 +168,56 @@ export class ProductsController {
   ) {
     const result = await this.productsService.getNgangDoc(files.file[0], userReq, limit, offset);
     return result;
+  }
+
+  /** 
+   * Upload image for posts category (server)
+   */
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Image file. Support png, jpg, jpeg, webp',
+    type: FileUploadImageDto,
+  })
+  @Post(':id/imageServer')
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'file', maxCount: 1 }
+    ],
+      {
+        fileFilter: multerFileFilter(['png', 'jpg', 'jpeg', 'webp']),
+        // uploadFile on server
+        storage: multerStorage('products')
+      }
+    )
+  )
+  async uploadImgServer(@Param('id') id: string,
+    @UploadedFiles() files: { file?: Express.Multer.File[] },
+    @AuthUser() authUser: JwtUser,
+  ) {
+    const result = await this.productsService.uploadImgServer(id, files.file[0], authUser);
+    return new OkRespone({ data: { _id: result._id, image: result.imageMachine } });
+  }
+
+  @Delete(':id/imageServer/:file')
+  @ApiParam({ name: 'id', required: true, description: "Id of posts" })
+  @ApiParam({ name: 'file', required: true, description: "Id of image in posts" })
+  async deleteImage(
+    @AuthUser() userReq: JwtUser,
+    @Param('id') id: string, @Param('file') fileId: string) {
+    const result = await this.productsService.deleteImage(id, fileId, userReq);
+    return new OkRespone({ data: result });
+  }
+
+
+  @ApiExcludeEndpoint()
+  @Get('imageServer/:id/:filename')
+  @AllowPublic()
+  async getImgServer(
+    @Res() res: Response,
+    @Param('filename') filename: string
+  ) {
+    const url = await this.productsService.getImgServer(filename);
+    // get file server
+    return res.sendFile(url);
   }
 }

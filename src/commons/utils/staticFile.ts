@@ -1,7 +1,11 @@
-import path from "path";
-import fs from 'fs';
+/* eslint-disable prefer-const */
+// import path from "path";
+// import fs from 'fs';
 import { promisify } from "util";
-import { PUBLIC_PATH } from "../constants/pathConstanst";
+import { PUBLIC_PATH, UPLOAD_PATH } from "../constants/pathConstanst";
+const path = require('path');
+const fs = require('fs');
+
 
 export class StaticFile {
     public static baseRoute = '/static';
@@ -15,7 +19,6 @@ export class StaticFile {
         extract.shift(); //remove first empty element
         if (extract[0] === 'static') {
             extract.shift(); //remove 'static'
-
             return path.join(__dirname, '../../../..', PUBLIC_PATH, ...extract);
         }
         else return '';
@@ -44,4 +47,14 @@ export class StaticFile {
             }
         }
     }
+    public static getFileName(url: string) {
+        let extract = url.split('/');
+        const filename = extract[extract.length - 1];
+        return { pathUpload: extract[1], filename }
+    }
+    public static getLocalFileUpload(pathFile: string, filename: string) {
+        const url = path.join(__dirname, '../../..', PUBLIC_PATH, UPLOAD_PATH, pathFile, filename);
+        return url;
+    }
+
 }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-inferrable-types */
 import { DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { AWSConfig } from "src/configs/aws.cnf";
@@ -20,7 +21,7 @@ const uploadFile = async (option: { file: Express.Multer.File, filePath: string,
     }));
 }
 
-const signedUrl = async (key: string, expireIn: number ) => {
+const signedUrl = async (key: string, expireIn: number = 600) => {
     const command = new GetObjectCommand({
         Bucket: AWSConfig.config.BUCKET_NAME,
         Key: key
@@ -29,6 +30,7 @@ const signedUrl = async (key: string, expireIn: number ) => {
 }
 
 const deleteFile = async (key: string) => {
+    console.log(AWSConfig.config.BUCKET_NAME);
     return await s3.send(new DeleteObjectCommand({
         Bucket: AWSConfig.config.BUCKET_NAME,
         Key: key

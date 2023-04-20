@@ -33,7 +33,7 @@ export const ErrCode = {
     E_TODO_DEMAND_STATUS_NOT_FOUND: 'NotFoundDemandStatus',
 
     E_PRODUCT_CTG_NOT_FOUND: 'NotFoundProductCategory',
-    E_PRODUCT_STATUS_NOT_FOUND: 'NotFoundProductStatus',
+    E_MAINTENANCE_SCHEDULE_STATUS_NOT_FOUND: 'NotFoundMaintenanceScheduleStatus',
 
     E_LABEL_NOT_FOUND: 'NotFoundLabel',
 
@@ -52,6 +52,11 @@ export const ErrCode = {
     E_ORDER_STATUS_NOT_FOUND: 'NotFoundOrderStatus',
 
     E_COMMENT_NOT_FOUND: 'NotFoundComment',
-    E_COLOR: 'ColorExisted'
+    E_COLOR: 'ColorExisted',
+    E_MACHINE_ERROR: 'NameMachineExisted',
+    E_BANNER_NOT_FOUND: 'NotFoundBanner',
+    E_BANNER_IMAGE_NOT_FOUND: 'NotFoundBannerImage',
+
+
 }
 

@@ -1,34 +1,20 @@
-import { IsNumber, IsString, IsBoolean, IsOptional, IsArray, IsMongoId, Matches } from "class-validator";
+import { IsNumber, IsString, IsBoolean, IsOptional, IsArray, IsMongoId, Matches, IsDateString, Length, MaxLength } from "class-validator";
 export class CreateProductDto {
     @IsString()
-    name: string;
+    nameMaintenance: string;
 
     @IsString()
-    @Matches(/^[^\s].*[^\s]$/, { message: 'Code must not have whitespaces at beginning or end' })
-    code: string;
+    @Length(10)
+    serialNumber: string;
 
     @IsString()
-    category: string;
+    manufacturer: string;
 
     @IsString()
-    type: string;
+    specifications: string; /// thông số kỹ thuật
 
-    @IsNumber()
-    price: number;
-
-     /**
-     * Check done of order
-     * @example true
-     */
-    @IsBoolean()
+    @IsDateString()
     @IsOptional()
-    show: boolean;
+    yearOfManufacturer: Date; /// năm sản xuất
 
-     /**
-     * Array of containers id
-     * @example ["6118e9fcb952b9001ce3a9ea"]
-     */
-      @IsArray()
-      @IsMongoId({ each: true })
-      containers: string[];
 }

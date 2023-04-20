@@ -44,7 +44,7 @@ export class MailService {
             template: './infostaff',
             context: {
                 name: `${user.fullName}`,
-                email: user.email,
+                email: user.phone,
                 password: password,
             },
         });

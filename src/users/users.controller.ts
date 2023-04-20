@@ -17,6 +17,7 @@ import { UserRole } from './interface/userRoles';
 import { ChangeRoleDto } from './dto/change-role.dto';
 import { Query } from '@nestjs/common';
 import { OnesignalService } from 'src/onesignal/onesignal.service';
+import { UpdateDeviceTokenDto } from './dto/update-deviceToken.dto';
 
 @Controller('users')
 @BearerJwt()
@@ -62,7 +63,6 @@ export class UsersController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    this.onsignal.sendNotification({ name: 'Hello world' }, [id]);
     return this.usersService.findOne(id, { throwIfFail: true, lean: true });
   }
 
@@ -90,5 +90,20 @@ export class UsersController {
   async changeRole(@Body() info: ChangeRoleDto, @AuthUser() authUser: JwtUser) {
     const result = await this.usersService.changeRole(info, authUser);
     return new OkRespone({ data: { _id: result._id, role: result.role } });
+  }
+  @Post('deviceToken')
+  async addDeviceToken(@Body() info: UpdateDeviceTokenDto,
+    @AuthUser() authUser: JwtUser
+  ) {
+    const result = await this.usersService.updateDeviceTokens(info.deviceToken, authUser);
+    return new OkRespone();
+  }
+
+  @Delete('deviceToken')
+  async removeDeviceToken(@Body() info: UpdateDeviceTokenDto,
+    @AuthUser() authUser: JwtUser
+  ) {
+    const result = await this.usersService.removeDeviceToken(info.deviceToken, authUser);
+    return new OkRespone();
   }
 }

@@ -12,6 +12,14 @@ import { APP_FILTER } from '@nestjs/core';
 import { OnesignalService } from './onesignal/onesignal.service';
 import { OnesignalController } from './onesignal/onesignal.controller';
 import { OnesignalModule } from './onesignal/onesignal.module';
+import { MaintenanceScheduleModule } from './maintenance-schedule/maintenance-schedule.module';
+import { MaintenanceScheduleStatusModule } from './maintenance-schedule-status/maintenance-schedule-status.module';
+import { ErrorMachineModule } from './error-machine/error-machine.module';
+import { BugsModule } from './bugs/bugs.module';
+import { BannerModule } from './banner/banner.module';
+import { ProvincesController } from './provinces/provinces.controller';
+// import { ProvincesService } from './provinces/provinces.service';
+import { ProvincesModule } from './provinces/provinces.module';
 
 @Module({
   imports: [
@@ -21,14 +29,21 @@ import { OnesignalModule } from './onesignal/onesignal.module';
     ProductCtgModule,
     ProductsModule,
     OnesignalModule,
+    MaintenanceScheduleModule,
+    MaintenanceScheduleStatusModule,
+    ErrorMachineModule,
+    BugsModule,
+    BannerModule,
+    ProvincesModule,
   ],
-  controllers: [AppController, OnesignalController],
+  controllers: [AppController, OnesignalController, ProvincesController],
   providers: [
     {
       provide: APP_FILTER,
       useClass: AllExceptionsFilter,
     },
     OnesignalService,
+    // ProvincesService,
   ],
 })
 export class AppModule { }

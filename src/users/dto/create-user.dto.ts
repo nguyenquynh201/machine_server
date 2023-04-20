@@ -1,6 +1,6 @@
 import {
     IsArray, IsDateString, IsEmail, IsEnum, IsMongoId, IsOptional, IsMobilePhone, IsString, MaxLength,
-    MinLength
+    MinLength, IsBoolean
 } from "class-validator";
 import { UserRole } from "../interface/userRoles";
 
@@ -22,11 +22,22 @@ export class CreateUserDto {
     @IsOptional()
     address: string;
 
+    @IsString()
+    @IsOptional()
+    addressProvince?: string;
+
+    @IsString()
+    @IsOptional()
+    addressDistrict?: string;
+
     /**
      * Default is `view`
      * @example [user, staff]
      */
     @IsEnum(UserRole)
     role: UserRole;
+
+    @IsBoolean()
+    resetPassword?: boolean
 
 }
