@@ -15,7 +15,7 @@ export class UserAddressService {
         @InjectModel(USER_ADDRESS) private model: Model<UserAddressDocument>,
     ) { }
     async create(createUserAddressDto: CreateUserAddressDto, authUser: JwtUser) {
-        
+
         return new this.model(createUserAddressDto).save();
     }
     async findAllAddressUser(authUser: JwtUser) {
@@ -27,6 +27,14 @@ export class UserAddressService {
         const [data, total] = await Promise.all([addressUser.exec(), totalCmd.exec()]);
 
         return { total, data };
+    }
+    async findAddressById(authUser: JwtUser, idAddress: string) {
+        const addressUser = await this.model.findById(idAddress)
+            .orFail(new NotFoundException())
+            .lean({ autopopulate: true }).exec();
+        console.log("nef nef", addressUser);
+        return addressUser
+
     }
     update(id: string, updateUserAddressDto: UpdateUserAddressDto, authUser: JwtUser) {
         return this.model.findByIdAndUpdate(id, updateUserAddressDto, { new: true })

@@ -36,26 +36,24 @@ export class ProductsController {
   @Get()
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'offset', required: false, type: Number })
-  @ApiQuery({ name: 'category', required: false, type: String })
   @ApiQuery({ name: 'search', required: false, type: String })
-  @ApiQuery({ name: 'code', required: false, type: String })
-  @ApiQuery({ name: 'show', required: false, type: Boolean })
+  @ApiQuery({ name: 'nameMaintenance', required: false, type: String })
+  @ApiQuery({ name: 'serialNumber', required: false, type: String })
+
   findAll(
     @AuthUser() authUser: JwtUser,
     @Query('limit', new DefaultValuePipe('0'), ParseIntPipe) limit?: number,
     @Query('offset', new DefaultValuePipe('0'), ParseIntPipe) offset?: number,
     @Query('search') search?: string,
-    @Query('category') ctg?: string,
-    @Query('code') code?: string,
-    @Query('show') show?: boolean,
+    @Query('nameMaintenance') nameMaintenance?: string,
+    @Query('serialNumber') serialNumber?: string,
   ) {
     return this.productsService.findAll(authUser, {
       limit,
       offset,
-      show,
       search,
-      category: ctg,
-      code
+      nameMaintenance,
+      serialNumber
     });
   }
 

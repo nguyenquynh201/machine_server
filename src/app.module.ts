@@ -20,6 +20,8 @@ import { BannerModule } from './banner/banner.module';
 import { ProvincesController } from './provinces/provinces.controller';
 // import { ProvincesService } from './provinces/provinces.service';
 import { ProvincesModule } from './provinces/provinces.module';
+// import { LoggerModule } from './loggers/logger.module';
+// import { MaintenanceScheduleStaffService } from './maintenance_schedule/maintenance_schedule_staff/maintenance_schedule_staff.service';
 
 @Module({
   imports: [
@@ -35,6 +37,7 @@ import { ProvincesModule } from './provinces/provinces.module';
     BugsModule,
     BannerModule,
     ProvincesModule,
+    // LoggerModule
   ],
   controllers: [AppController, OnesignalController, ProvincesController],
   providers: [
@@ -43,6 +46,8 @@ import { ProvincesModule } from './provinces/provinces.module';
       useClass: AllExceptionsFilter,
     },
     OnesignalService,
+  
+    // MaintenanceScheduleStaffService,
     // ProvincesService,
   ],
 })

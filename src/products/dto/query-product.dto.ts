@@ -1,6 +1,5 @@
 export class QueryProduct {
     search?: string;
-    category?: string;
-    show?: boolean;
-    code?: string;
+    nameMaintenance?: string;
+    serialNumber?: string;
 }

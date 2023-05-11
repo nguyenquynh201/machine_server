@@ -10,6 +10,10 @@ export const MAINTENANCE_SCHEDULE_PRODUCT = 'maintenance_schedule_product';
 export const USER_PRODUCT = 'user_product';
 export const USER_ADDRESS = 'user_address';
 
+export const MAINTENANCE_SCHEDULE_STAFF = 'maintenance_schedule_staff';
+export const MAINTENANCE_SCHEDULE_HISTORY = 'maintenance_schedule_history';
+export const MAINTENANCE_SCHEDULE_RATE = 'maintenance_schedule_rate';
+
 export const PROVINCE = 'province';
 
 

@@ -14,6 +14,11 @@ export class UserProduct {
   productId?: string | Product;
 
   // sô lượng
+  @Prop()
+  lastMaintenanceDate?: Date;
+
+  @Prop()
+  nextMaintenanceDate?: Date;
 }
 
 export type UserProductDocument = UserProduct & mongoose.Document;

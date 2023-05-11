@@ -3,15 +3,17 @@ import * as admin from "firebase-admin";
 import { Injectable } from '@nestjs/common';
 import fs from "fs";
 import { GOOGLE_APPLICATION_CREDENTIALS, NODE_ENV } from 'src/commons/constants/envConstanst';
-import { MyLogService } from "src/loggers/winston.logger";
-import _ from "lodash";
+// import { MyLogService } from "src/loggers/winston.logger";
+// import _ from "lodash";
+const _ = require('lodash');
+
 
 @Injectable()
 export class FcmService {
     private dry_run = NODE_ENV == "production" || NODE_ENV == "staging" ? false : true;
 
     constructor(
-        private logger: MyLogService,
+        // private logger: MyLogService,
     ) {
         this.init();
     }
@@ -34,7 +36,7 @@ export class FcmService {
                 credential: admin.credential.cert(account),
             })
         } else {
-            this.logger.error('Firebase can not get service account');
+            // this.logger.error('Firebase can not get service account');
         }
     }
 
@@ -67,9 +69,9 @@ export class FcmService {
             if (!tk || tk.length == 0) emptyTokens++;
         })
 
-        this.logger.log(`>>>FCM Send message: ${JSON.stringify(notification)
-            } - list token: ${tokenList.length
-            } - empty token: ${emptyTokens}`);
+        // this.logger.log(`>>>FCM Send message: ${JSON.stringify(notification)
+        //     } - list token: ${tokenList.length
+        //     } - empty token: ${emptyTokens}`);
 
         tokenList = tokenList.filter(tk => tk && tk.length);
         if (tokenList.length == 0) return;
@@ -78,7 +80,7 @@ export class FcmService {
             admin.messaging().send(mess, this.dry_run)
                 .then(respone => {
                     // response is a message ID string
-                    this.logger.log(`FCM message ${respone} send ok to device`);
+                    // this.logger.log(`FCM message ${respone} send ok to device`);
                     if (callback)
                         callback(null, {
                             singleToken: mess.token,
@@ -95,7 +97,7 @@ export class FcmService {
                         });
                 })
                 .catch(error => {
-                    this.logger.error('FCM error: ' + error.message);
+                    // this.logger.error('FCM error: ' + error.message);
                     if (callback)
                         callback(null, {
                             singleToken: mess.token,
@@ -126,7 +128,7 @@ export class FcmService {
                         callback(null, { chunks, response: responses });
                 })
                 .catch(error => {
-                    this.logger.error('FCM error totally: ' + error.message);
+                    // this.logger.error('FCM error totally: ' + error.message);
                     if (callback)
                         callback(error);
                 });

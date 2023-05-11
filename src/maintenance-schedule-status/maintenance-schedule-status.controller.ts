@@ -21,6 +21,7 @@ export class MaintenanceScheduleStatusController {
     @Get()
     @ApiQuery({ name: 'limit', required: false, type: Number })
     @ApiQuery({ name: 'offset', required: false, type: Number })
+    @ApiQuery({ name: 'search', required: false, type: String })
     findAll(@AuthUser() authUser: JwtUser,
         @Query('limit', new DefaultValuePipe('0'), ParseIntPipe) limit?: number,
         @Query('offset', new DefaultValuePipe('0'), ParseIntPipe) offset?: number,

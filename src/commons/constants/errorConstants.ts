@@ -34,7 +34,9 @@ export const ErrCode = {
 
     E_PRODUCT_CTG_NOT_FOUND: 'NotFoundProductCategory',
     E_MAINTENANCE_SCHEDULE_STATUS_NOT_FOUND: 'NotFoundMaintenanceScheduleStatus',
-
+    E_MAINTENANCE_SCHEDULE_NOT_FOUND: 'NotFoundMaintenanceSchedule',
+    E_MAINTENANCE_SCHEDULE_STAFF: 'Lịch đã có nhân viên nhận bảo trì',
+    
     E_LABEL_NOT_FOUND: 'NotFoundLabel',
 
     E_RESOURCE_NOT_FOUND: 'NotFoundResource',
@@ -56,6 +58,12 @@ export const ErrCode = {
     E_MACHINE_ERROR: 'NameMachineExisted',
     E_BANNER_NOT_FOUND: 'NotFoundBanner',
     E_BANNER_IMAGE_NOT_FOUND: 'NotFoundBannerImage',
+    E_STATUS_DONE_NOT_FOUND : 'Trạng thái chưa hoàn thành',
+    E_STATUS_WAITING_NOT_FOUND : 'Trạng thái đã có sự thay đổi',
+    E_RATING_NOT_FOUND : 'Đã đánh giá',
+    E_MAINTENANCE_NOT_FOUND: 'NotFoundMaintenance',
+    E_NO_STAFF : 'Lịch bảo trì chưa có nhân viên '
+
 
 
 }

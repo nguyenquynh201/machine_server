@@ -21,6 +21,11 @@ export class UserAddressController {
     get(@AuthUser() authUser: JwtUser,) {
         return this.userAddressService.findAllAddressUser(authUser);
     }
+
+    @Get(':id')
+    getAddressById(@AuthUser() authUser: JwtUser, @Param('id') id: string) {
+        return this.userAddressService.findAddressById(authUser, id);
+    }
     @Put(':id')
     update(@Param('id') id: string, @Body() updateUserAddressDto: UpdateUserAddressDto, @AuthUser() authUser: JwtUser) {
         return this.userAddressService.update(id, updateUserAddressDto, authUser);

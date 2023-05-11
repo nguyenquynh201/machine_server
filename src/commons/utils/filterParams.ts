@@ -1,13 +1,7 @@
-export function filterParams(origin: object, picks: string[]) {
-    let query = {};
-    for (let i = 0; i < picks.length; i++) {
-        const key = picks[i];
-        const element = origin[key];
+// import _ from "lodash";
+const _ = require('lodash');
 
-        if (element) {
-            query[key] = element;
-        }
-    }
-
-    return query;
+export function filterParams(originQuery, picks: string[]) {
+    const cond = _.pickBy(_.pick(originQuery, picks), _.identity);
+    return cond;
 }

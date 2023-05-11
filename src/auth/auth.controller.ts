@@ -5,6 +5,7 @@ import { AuthService } from './auth.service';
 import { UserRefreshToken } from './dto/refresh-token.dto';
 import { OnesignalService } from 'src/onesignal/onesignal.service';
 import { UserLoginDto } from './dto/userLogin.dto';
+import { VerifyTokenDto } from './dto/verify-token.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -23,6 +24,11 @@ export class AuthController {
     @Post('refresh_token')
     refreshToken(@Body() req: UserRefreshToken) {
         return this.authService.refreshToken(req);
+    }
+
+    @Post('verify_token')
+    verifyToken(@Body() req: VerifyTokenDto) {
+        return this.authService.verifyToken(req);
     }
 
     // @Post('register')

@@ -16,6 +16,8 @@ import { Paginate } from 'src/commons/dto/paginate.dto';
 import { filterParams } from 'src/commons/utils/filterParams';
 import { MailService } from 'src/mail/mail.service';
 import { ProductsService } from 'src/products/products.service';
+import { StaticFile } from 'src/commons/utils/staticFile';
+import { signedUrl } from 'src/commons/utils/s3Client';
 
 @Injectable()
 export class UsersService {
@@ -129,7 +131,7 @@ export class UsersService {
   }
 
   async findOne(id: string, options?: { throwIfFail?: boolean, password?: boolean, lean?: boolean }) {
-    
+
     const cmd = this.userModel.findById(id)
       .populate({
         path: 'listProduct',
@@ -230,7 +232,7 @@ export class UsersService {
     }
     const hashPassword = await bcrypt.hash(info.newPassword, 10);
     user.password = hashPassword;
-
+    user.resetPassword = true;
     await user.save();
     return true;
   }
@@ -242,4 +244,34 @@ export class UsersService {
     user.role = info.role;
     return user.save();
   }
+  // upload file server
+  async uploadImgServer(id: string, file: Express.Multer.File, authUser: JwtUser) {
+    const user = await this.userModel.findById(id)
+      .orFail(new NotFoundException(ErrCode.E_USER_NOT_FOUND))
+      .exec();
+
+    // uploadFile server
+    const url = `users/avatars/${id}/${file.filename}`;
+
+    if (user.avatar) {
+      const filename = StaticFile.getFileName(user.avatar);
+      // delete file server
+      const url = StaticFile.getLocalFileUpload('users', `${filename}`);
+      StaticFile.deleteStaticFile(url);
+    }
+    user.avatar = url;
+
+    return user.save();
+  }
+
+
+
+  async getImgServer(fileName: string) {
+    // get file server
+    const key = StaticFile.getLocalFileUpload('users', fileName);
+    console.log("key ::", key);
+    return key;
+  }
+
+
 }

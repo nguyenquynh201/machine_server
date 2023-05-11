@@ -1,5 +1,5 @@
 import {
-    BadRequestException, Injectable, NotFoundException,
+    BadRequestException, HttpException, HttpStatus, Injectable, NotFoundException,
     UnauthorizedException
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -12,6 +12,8 @@ import { UsersService } from 'src/users/users.service';
 import { UserRefreshToken } from './dto/refresh-token.dto';
 import { RegisterUserDto } from './dto/register.dto';
 import { OnesignalService } from 'src/onesignal/onesignal.service';
+import { VerifyTokenDto } from './dto/verify-token.dto';
+import { HttpResponse } from 'aws-sdk';
 @Injectable()
 export class AuthService {
     constructor(
@@ -59,11 +61,30 @@ export class AuthService {
         })
     }
 
+    async verifyToken(userTokens: VerifyTokenDto) {
+        try {
+            const payload = this.jwtService.verify(userTokens.accessToken, {
+                secret: JwtConstants.secret,
+                ignoreExpiration: true
+            });
+            if (payload.exp < Date.now() / 1000) { // Kiểm tra thời gian hết hạn
+                return { "status": HttpStatus.BAD_REQUEST };    
+            }
+
+            return { "status": HttpStatus.OK };
+        } catch (error) {
+            throw new HttpException('Invalid token', 401);
+        }
+    }
+
     async refreshToken(userTokens: UserRefreshToken) {
         const payload = this.jwtService.verify(userTokens.accessToken, {
             secret: JwtConstants.secret,
             ignoreExpiration: true
         });
+        console.log('====================================');
+        console.log(payload['id']);
+        console.log('====================================');
         const id = payload['id'];
         const user = await this.userService.findOne(id, {
             throwIfFail: true,
@@ -99,7 +120,7 @@ export class AuthService {
         if (phoneNumber) {
             throw new BadRequestException(ErrCode.E_USER_PHONE_EXISTED);
         }
-        const user = await this.userService.registerEdit({ ...dto, role: UserRole.Staff });
+        const user = await this.userService.registerEdit({ ...dto, role: UserRole.Admin  });
 
         // this.mailService.sendUserConfirmation(user, password)
         // // this.mailService.sendUserForgotPassword(user, password)

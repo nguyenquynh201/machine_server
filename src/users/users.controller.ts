@@ -1,13 +1,13 @@
 import {
   Controller, Get, Post, Body, Param, Delete, Put,
-  UseInterceptors, UploadedFile, DefaultValuePipe, ParseIntPipe, Res, Req,
+  UseInterceptors, UploadedFile, DefaultValuePipe, ParseIntPipe, Res, Req, UploadedFiles,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { BearerJwt } from 'src/decors/bearer-jwt.decorator';
-import { ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiExcludeEndpoint, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { UserChangePassword } from './dto/userChangePass.dto';
 import { OkRespone } from 'src/commons/okResponse';
 import { JwtUser } from 'src/auth/inteface/jwtUser';
@@ -18,6 +18,13 @@ import { ChangeRoleDto } from './dto/change-role.dto';
 import { Query } from '@nestjs/common';
 import { OnesignalService } from 'src/onesignal/onesignal.service';
 import { UpdateDeviceTokenDto } from './dto/update-deviceToken.dto';
+import { FileFieldsInterceptor, FileInterceptor } from '@nestjs/platform-express';
+import { FileUploadDto } from 'src/commons/dto/file-upload.dto';
+import { multerFileFilter, multerStorage } from 'src/configs/multer.cnf';
+import { AllowPublic } from 'src/decors/allow-public.decorator';
+import { Response } from 'express';
+import { FileUploadImageDto } from 'src/commons/enums/typeimgs';
+
 
 @Controller('users')
 @BearerJwt()
@@ -105,5 +112,45 @@ export class UsersController {
   ) {
     const result = await this.usersService.removeDeviceToken(info.deviceToken, authUser);
     return new OkRespone();
+  }
+  /** 
+   * Upload image for posts category (server)
+   */
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Image file. Support png, jpg, jpeg, webp',
+    type: FileUploadImageDto,
+  })
+  @Post(':id/avatars')
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'file', maxCount: 1 }
+    ],
+      {
+        fileFilter: multerFileFilter(['png', 'jpg', 'jpeg', 'webp']),
+        // uploadFile on server
+        storage: multerStorage('users')
+      }
+    )
+  )
+  async uploadImgServer(@Param('id') id: string,
+    @UploadedFiles() files: { file?: Express.Multer.File[] },
+    @AuthUser() authUser: JwtUser,
+  ) {
+    const result = await this.usersService.uploadImgServer(id, files.file[0], authUser);
+    return new OkRespone({ data: result });
+  }
+
+
+  @ApiExcludeEndpoint()
+  @Get('avatars/:id/:filename')
+  @AllowPublic()
+  async getImgServer(
+    @Res() res: Response,
+    @Param('filename') filename: string
+  ) {
+    const url = await this.usersService.getImgServer(filename);
+    // get file server
+    return res.sendFile(url);
   }
 }

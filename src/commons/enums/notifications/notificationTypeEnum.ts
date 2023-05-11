@@ -11,4 +11,5 @@ export enum NotificationType {
     careTodoDemand = "careTodoDemand",
     careCustomer = "careCustomer",
     careCustomerHour = "careCustomerHour",
+    maintenanceSchedule = "maintenance_schedule"
 }

@@ -2,7 +2,7 @@
 /* eslint-disable prefer-const */
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, FlattenMaps, LeanDocument, Model } from 'mongoose';
+import { FilterQuery, LeanDocument, Model } from 'mongoose';
 import { PRODUCT } from 'src/commons/constants/schemaConst';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -38,36 +38,20 @@ export class ProductsService {
     }
     return this.model.create(dto);
   }
-  
+
   async findAll(authUser: JwtUser, query?: Paginate & QueryProduct) {
 
     let filter: FilterQuery<ProductDocument> = {};
 
     if (query.search) {
-      filter.$or = [
-        { $text: { $search: `.*${query.search}.*`, $language: "en" } },
-        { code: { $regex: `^${query.search}` } },
-        { code: { $regex: `${query.search}$` } },
-      ]
+      filter.$text = { $search: `${query.search}`, $language: "en" };
     }
 
-    const cond = filterParams(query, ['category']);
+    const cond = filterParams(query, ['nameMaintenance', 'serialNumber']);
     const cmd = this.model.find({ ...filter, ...cond })
       .lean({ autopopulate: true })
 
-    if (query.show != undefined) {
-      cmd.where('show', query.show);
-    }
-    if (query.code) {
-      // cmd.where({
-      //   $or: [
-      //     { code: { $regex: `^${query.code.trim()}` } },
-      //     { code: { $regex: `${query.code.trim()}$` } },
-      //   ]
-      // })
-      // const code = decodeURIComponent(query.code);
-      cmd.where('code', query.code);
-    }
+
     if (query.limit) {
       cmd.limit(query.limit);
     }
@@ -87,7 +71,7 @@ export class ProductsService {
       .orFail(new NotFoundException())
       .exec();
   }
- 
+
   update(id: string, dto: UpdateProductDto, authUser: JwtUser) {
     if (authUser.role != UserRole.Admin) {
       throw new ForbiddenException();

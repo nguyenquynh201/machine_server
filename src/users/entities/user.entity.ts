@@ -36,6 +36,9 @@ export class User {
     fullName: string;
 
     @Prop()
+    avatar?: string;
+
+    @Prop()
     addressProvince?: string;
 
     @Prop()

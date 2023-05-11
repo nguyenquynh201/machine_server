@@ -5,6 +5,7 @@ import { ITenant } from 'src/commons/mongoosePlugins/tenant';
 import { TenantPlugin } from 'src/commons/mongoosePlugins/tenant.plugin';
 import { NotificationType } from 'src/commons/enums/notifications/notificationTypeEnum';
 import { User } from 'src/users/entities/user.entity';
+import { UserRole } from 'src/users/interface/userRoles';
 
 @Schema({ timestamps: true, toJSON: { versionKey: false } })
 export class Notifications implements ITenant {
@@ -20,7 +21,7 @@ export class Notifications implements ITenant {
     @Prop({
         types: mongoose.Schema.Types.ObjectId,
         ref: User.name,
-        autopopulate: { select: 'username fullName email avatar email birth' },
+        autopopulate: { select: 'username fullName email avatar email birth phone' },
     })
     author: string;
 
@@ -31,6 +32,16 @@ export class Notifications implements ITenant {
     object?: Record<string, string>;
 
     owner?: string;
+
+    @Prop()
+    relateStaff?: string;
+
+
+    @Prop({ default: UserRole.Admin })
+    role: string | UserRole;
+
+    @Prop({ default: false })
+    assign: boolean;
 }
 
 export type NotificationsDocument = Notifications & Document;

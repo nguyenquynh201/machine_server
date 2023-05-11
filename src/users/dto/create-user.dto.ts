@@ -3,6 +3,7 @@ import {
     MinLength, IsBoolean
 } from "class-validator";
 import { UserRole } from "../interface/userRoles";
+import { Gender } from "../interface/gender";
 
 export class CreateUserDto {
 
@@ -36,6 +37,13 @@ export class CreateUserDto {
      */
     @IsEnum(UserRole)
     role: UserRole;
+
+    /**
+     * Default is `view`
+     * @example [male, female , other]
+     */
+    @IsEnum(Gender)
+    gender?: Gender;
 
     @IsBoolean()
     resetPassword?: boolean

@@ -24,7 +24,7 @@ export class Product {
     category: string;
 
     @Prop()
-    serialNumber: string;
+    serialNumber: string; 
 
     @Prop({ required: true })
     manufacturer: string; /// nhà sản xuất
@@ -47,8 +47,6 @@ export class Product {
     @Prop({ type: String, ref: User.name, autopopulate: { select: 'username' } })
     createdBy: string;
 
-    // @Prop({ type: String, ref: User.name, autopopulate: { select: 'username phone avatar fullName role' } })
-    // buyer: string;
 
     @Prop({ default: true })
     show: boolean;

@@ -1,4 +1,5 @@
 import { bool } from "aws-sdk/clients/signer";
+import { Transform } from "class-transformer";
 import { IsArray, IsMobilePhone, IsEnum, IsMongoId, IsOptional, IsString, IsNumberString, IsBoolean } from "class-validator";
 import { Gender } from "src/users/interface/gender";
 
@@ -25,6 +26,13 @@ export class CreateUserAddressDto {
     addressUser: string;
 
     @IsBoolean()
-    @IsOptional()
+    @Transform(({ obj, key }) => {
+        const value = obj[key];
+        if (typeof value === 'string') {
+            return obj[key] === 'true';
+        }
+
+        return value;
+    })
     fixed?: boolean = false
 }
